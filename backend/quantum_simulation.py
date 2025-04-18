@@ -15,7 +15,8 @@ def run_on_real_device(data):
     EAVESDROP = data.get('EAVESDROP', False)  # Default to False
     EVE_INTERCEPT_RATE = data.get('EVE_INTERCEPT_RATE', 1.0)  # Default to 1.0
     alice_bits = data.get('alice_bits', [random.randint(0, 1) for _ in range(N_BITS)])
-    alice_bases = data.get('alice_bases', [random.choice(['Z', 'X']) for _ in range(N_BITS)])
+
+
 
     # Step 2: BOB chooses random bases (still random in this case)
     bob_bases = [random.choice(['Z', 'X']) for _ in range(N_BITS)]
