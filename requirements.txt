@@ -1,0 +1,10 @@
+sqlalchemy
+pandas
+numpy
+matplotlib 
+psycopg2
+black
+flask
+qiskit-ibm-runtime
+flask-cors
+qiskit-aer

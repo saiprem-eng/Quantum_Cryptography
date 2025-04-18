@@ -1,0 +1,15 @@
+# Ignore virtual environment directories
+my_env/
+
+# Ignore Python cache files
+__pycache__/
+
+# Ignore all the env files
+.env
+.env.*
+
+# Ignore Node modules
+node_modules/
+
+# Ignore package-lock.json
+package-lock.json
