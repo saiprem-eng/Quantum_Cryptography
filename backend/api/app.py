@@ -1,10 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 import os, sys
 from flask_cors import CORS  # Import CORS
 # Adding the parent folder to the system path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from quantum_simulation import run_simulation, run_on_real_device
+from bloch_sphere import plot_sphere
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -37,6 +38,34 @@ def run_simulation_route():
         return jsonify({
             'status': 'error',
             'message': f'An error occurred while processing the simulation: {str(e)}'
+        }), 500
+
+
+@app.route('/bloch_visualization', methods=['POST'])
+def plot_bloch_from_data():
+    try:
+        # Get data from the request
+        data = request.json
+        alice_bits = data.get('alice_bits')
+        alice_bases = data.get('alice_bases')
+
+        # Check if both 'alice_bits' and 'alice_bases' are provided
+        if not alice_bits or not alice_bases:
+            return jsonify({
+                'status': 'error',
+                'message': 'Missing required fields: alice_bits and/or alice_bases'
+            }), 400
+
+        # Call the function from bloch_sphere.py to generate the Bloch sphere plot
+        img_io = plot_sphere(alice_bits, alice_bases)
+
+        # Return the image as a response to the frontend
+        return send_file(img_io, mimetype='image/png', as_attachment=False, download_name="bloch_spheres.png")
+
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Error generating Bloch sphere: {str(e)}'
         }), 500
 
 
