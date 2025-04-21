@@ -165,22 +165,30 @@ function BB84Form() {
   const [eveBase, setEveBase] = useState(false); // Added Eve's base state
 
   // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();  // Prevent the default form submission
+const handleRunSimulation = async (payload) => {
+  try {
+    // Select the URL based on the flag in the payload
+    const url = payload.isRealDevice
+      ? 'http://localhost:8000/run_on_real_device' // For real device
+      : 'http://localhost:8000/run_simulation'; // For simulation
 
-    const data = {
-      alice_bit: aliceBits,
-      alice_base: aliceBases,
-    };
-    console.log('Data being sent:', data); // Log the data to the console
-    try {
-      const response = await fetch('http://localhost:8000/run_simulation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        alice_bit: payload.alice_bit,
+        alice_base: payload.alice_base,
+      }),
+    });
+
+    const result = await response.json();
+    console.log('Simulation result:', result);
+  } catch (error) {
+    console.error('Error running simulation:', error);
+  }
+};);
 
       const result = await response.json();
 

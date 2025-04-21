@@ -173,29 +173,38 @@ const App = () => {
   const handleSimulationClick = () => setShow('Simulation');
   const handleRealTimeClick = () => setShow('Realtime');
 
-  const handleRunSimulation = async (data) => {
+  cconst handleRunSimulation = async (payload) => {
     try {
-      const response = await fetch('http://localhost:8000/run_simulation', {
+      // Select the URL based on the flag in the payload
+      const url = payload.isRealDevice
+        ? 'http://localhost:8000/run_on_real_device' // For real device
+        : 'http://localhost:8000/run_simulation'; // For simulation
+  
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          alice_bit: payload.alice_bit,
+          alice_base: payload.alice_base,
+        }),
       });
-
+  
       const result = await response.json();
-
-      if (response.ok) {
-        console.log('✅ Simulation Success:', result);
-        setSimulationData(result);  // Store result to show in visualizations
-      } else {
-        console.error('❌ API Error:', result.message);
-      }
+      console.log('Simulation result:', result);
     } catch (error) {
-      console.error('❌ Network or Server Error:', error);
+      console.error('Error running simulation:', error);
     }
   };
-
+  
+      const result = await response.json();
+      console.log('Simulation result:', result);
+    } catch (error) {
+      console.error('Error running simulation:', error);
+    }
+  };
+  
   const handleGenerateBlochSphere = async () => {
     try {
       const response = await axios.get("http://127.0.0.1:8000/test_bloch", {

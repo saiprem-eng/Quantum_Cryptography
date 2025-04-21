@@ -8,3 +8,6 @@ flask
 qiskit-ibm-runtime
 flask-cors
 qiskit-aer
+fastapi 
+uvicorn
+streamlit

@@ -54,6 +54,7 @@
 # axs = [fig.add_subplot(4, 4, i + 1, projection='3d') for i in range(16)]
 # fig.suptitle("Bloch Spheres: Alice's Encoded 16 Qubits", fontsize=18)
 
+import math
 import matplotlib
 matplotlib.use("Agg")  # Use non-interactive backend for saving images
 import matplotlib.pyplot as plt
@@ -64,23 +65,68 @@ import numpy as np
 from io import BytesIO
 import os, datetime
 
-def plot_sphere(alice_bits, alice_bases):
-    try:
-        # Create a folder to save images if it doesn't exist (optional, as you're returning image in memory)
-        save_folder = 'images'
-        if not os.path.exists(save_folder):
-            os.makedirs(save_folder)
+# def plot_sphere(alice_bits, alice_bases):
+#     try:
+#         # Create a folder to save images if it doesn't exist (optional, as you're returning image in memory)
+#         save_folder = 'images'
+#         if not os.path.exists(save_folder):
+#             os.makedirs(save_folder)
         
-        # Generate the filename based on the current date and time (optional for saving to disk)
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = os.path.join(save_folder, f"bloch_spheres_{timestamp}.png")
+#         # Generate the filename based on the current date and time (optional for saving to disk)
+#         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+#         filename = os.path.join(save_folder, f"bloch_spheres_{timestamp}.png")
 
-        # Create figure with subplots for the number of qubits (16)
-        fig = plt.figure(figsize=(16, 10), dpi=100)
-        axs = [fig.add_subplot(4, 4, i + 1, projection='3d') for i in range(len(alice_bits))]
-        fig.suptitle("Bloch Spheres: Alice's Encoded 16 Qubits", fontsize=18)
+#         # Create figure with subplots for the number of qubits (16)
+#         fig = plt.figure(figsize=(16, 10), dpi=100)
+#         axs = [fig.add_subplot(4, 4, i + 1, projection='3d') for i in range(len(alice_bits))]
+#         fig.suptitle("Bloch Spheres: Alice's Encoded 16 Qubits", fontsize=18)
 
-        for i in range(len(alice_bits)):
+#         for i in range(len(alice_bits)):
+#             qc_vis = QuantumCircuit(1)
+#             if alice_bits[i] == 1:
+#                 qc_vis.x(0)
+#             if alice_bases[i] == 'X':
+#                 qc_vis.h(0)
+
+#             state = Statevector.from_instruction(qc_vis)
+#             bloch_vector = [
+#                 np.real(state.expectation_value(SparsePauliOp.from_list([("X", 1)]))),
+#                 np.real(state.expectation_value(SparsePauliOp.from_list([("Y", 1)]))),
+#                 np.real(state.expectation_value(SparsePauliOp.from_list([("Z", 1)])))
+#             ]
+
+#             plot_bloch_vector(bloch_vector, title=f"Qubit {i}", ax=axs[i])
+
+#         plt.tight_layout()
+#         plt.subplots_adjust(top=0.92)
+
+#         # Save the plot to a BytesIO object instead of saving to disk
+#         img_io = BytesIO()
+#         plt.savefig(img_io, format='png')
+#         img_io.seek(0)  # Seek to the beginning of the BytesIO object
+#         plt.close()
+
+#         return img_io  # Return the image as a BytesIO object
+
+#     except Exception as e:
+#         raise Exception(f"Error generating Bloch sphere: {str(e)}")
+
+
+def plot_sphere(alice_bits, alice_bases):
+    print(f"this {alice_bits}, {alice_bases}")
+    try:
+        num_qubits = len(alice_bits)
+
+        # Determine optimal grid size (rows x cols)
+        cols = math.ceil(math.sqrt(num_qubits))
+        rows = math.ceil(num_qubits / cols)
+
+        # Create a figure with dynamic size
+        fig = plt.figure(figsize=(4 * cols, 4 * rows), dpi=100)
+        axs = [fig.add_subplot(rows, cols, i + 1, projection='3d') for i in range(num_qubits)]
+        fig.suptitle(f"Bloch Spheres: Alice's Encoded {num_qubits} Qubits", fontsize=18)
+
+        for i in range(num_qubits):
             qc_vis = QuantumCircuit(1)
             if alice_bits[i] == 1:
                 qc_vis.x(0)
@@ -91,21 +137,41 @@ def plot_sphere(alice_bits, alice_bases):
             bloch_vector = [
                 np.real(state.expectation_value(SparsePauliOp.from_list([("X", 1)]))),
                 np.real(state.expectation_value(SparsePauliOp.from_list([("Y", 1)]))),
-                np.real(state.expectation_value(SparsePauliOp.from_list([("Z", 1)])))
+                np.real(state.expectation_value(SparsePauliOp.from_list([("Z", 1)]))),
             ]
 
-            plot_bloch_vector(bloch_vector, title=f"Qubit {i}", ax=axs[i])
+            plot_bloch_vector(bloch_vector, title=f"Qubit {i}\nBit={alice_bits[i]}, Basis={alice_bases[i]}", ax=axs[i])
 
         plt.tight_layout()
-        plt.subplots_adjust(top=0.92)
+        plt.subplots_adjust(top=0.9)
 
         # Save the plot to a BytesIO object instead of saving to disk
         img_io = BytesIO()
         plt.savefig(img_io, format='png')
-        img_io.seek(0)  # Seek to the beginning of the BytesIO object
+        img_io.seek(0)
         plt.close()
 
-        return img_io  # Return the image as a BytesIO object
+        return img_io
 
     except Exception as e:
         raise Exception(f"Error generating Bloch sphere: {str(e)}")
+    
+
+        # Test data
+if __name__ == "__main__":
+
+    alice_bits = [1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0]
+    alice_bases = ['X', 'Z', 'X', 'Z', 'X', 'Z', 'X', 'Z', 'X', 'Z', 'X', 'Z', 'X', 'Z', 'X', 'Z']
+    
+    try:
+        # Generate the Bloch sphere image
+        img_io = plot_sphere(alice_bits, alice_bases)
+        
+        # Save the image to a file (optional, for verification)
+        with open("bloch_spheres.png", "wb") as f:
+            f.write(img_io.read())
+
+        print("Bloch sphere image saved successfully as 'bloch_spheres.png'.")
+
+    except Exception as e:
+        print(f"Error: {str(e)}")
