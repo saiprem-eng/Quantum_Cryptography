@@ -126,6 +126,7 @@ async def run_simulation_route(data: SimulationRequest):
         print(f"data is :{data}")
         # Run simulation with validated input
         result = run_simulation(data.model_dump())
+        
         print(f"result : {result}")
         return JSONResponse({
             'status': 'success',
@@ -158,6 +159,8 @@ async def plot_bloch_from_data(data: BlochVisualizationRequest):
         return StreamingResponse(img_io, media_type='image/png')
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()  # This prints the full error traceback to the console
         raise HTTPException(
             status_code=500,
             detail=f'Error generating Bloch sphere: {str(e)}'
@@ -167,6 +170,7 @@ async def plot_bloch_from_data(data: BlochVisualizationRequest):
 async def run_on_real_device_route(data: dict):
     try:
         result = run_on_real_device(data)
+        
         return JSONResponse(result)
 
     except Exception as e:
